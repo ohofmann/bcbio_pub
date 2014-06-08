@@ -21,7 +21,7 @@ def main():
 def _args_valid_for_scheduler(args):
     return args.scheduler and args.queue
 ```
-![FigureCaption](PathToFigure)
+![FigureCaption](figures/circos.png)
 
 # References
 

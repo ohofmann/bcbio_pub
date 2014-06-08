@@ -1,1 +1,7 @@
 cache/
+
+*.pdf
+*.png
+*.jpg
+*.html
+.DS_Store
