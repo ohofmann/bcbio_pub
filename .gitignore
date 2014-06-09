@@ -5,3 +5,5 @@ cache/
 *.jpg
 *.html
 .DS_Store
+.Rhistory
+article-knitr.md
