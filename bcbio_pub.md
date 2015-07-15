@@ -14,25 +14,26 @@ abstract: Exploratory and translational research relies on accurate identificati
 
 ## Introduction
 
-
 bcbio-nextgen provides a variant calling pipeline to accurately detect single nucleotide polymorphisms (SNPs) and insertions/deletions (indels) from high throughput sequencing data. It utilizes multiple best practice approaches for alignment, alignment post-processing and variant calling, provides an integrated mechanism to assess variant quality and interfaces with downstream tools for variant analysis. Practically, it installs with a single command on multiple computing architectures, scales to large whole genome analyses, and is community developed. The goal is to provide a robust platform for moving from raw sequencing data to high-quality variant calls that evolves as algorithms and sequencing technologies change.
 
-The pipeline utilizes existing algorithms, wrapping them in an easy to use and scalable way. It provides software programming interfaces to enable new tools and currently builds on a large number of reusable software packages:
+The pipeline utilizes existing algorithms, wrapping them in an easy to use and scalable way. It provides software programming interfaces to enable new tools and currently builds on a large number of reusable software packages (see methods). The pipeline reports variant calling results both in standard VCF format and as a ready to query database, making results analyzable by both bioinformaticians and biologists familiar with SQL and command line tools. snpEff [@cingolani_program_2012] predicts effects associated with identified variation and GEMINI provides the SQLite database associating variants with a wide variety of genome annotations [@paila_gemini:_2013].
+
+Three major components of bcbio-nextgen differentiate it from both existing tools like HugeSeq [@lam_detecting_2012] and customized in-house scripts:
+
+* Quantifiable: It validates variant calls against known reference materials developed by the Genome in a Bottle consortium [@zook_integrating_2013]. Automating scoring and assessment of calls allows identification of improvements or regressions in variant identification as calling pipelines evolve. Incorporation of multiple variant calling approaches from Broad’s GATK best practices [@van_der_auwera_fastq_2002] and the Marth lab’s FreeBayes caller [@garrison_haplotype-based_2012] enables informed comparisons between algorithms.
+* Scalable: bcbio-nextgen handles large population studies with hundreds of whole genome samples by parallelizing on a wide variety of schedulers (LSF, SGE, Torque, SLURM) and multicore machines. Runs local, AWS. Benchmarking support to optimize workflows. 
+* Community developed: Due to the focus on solving the problems of setting up and maintaining a complex analysis pipeline, multiple sequencing centers and research laboratories use bcbio-nextgen {SUCH AS AND REFER TO A TABLE OF THE SITES AT WHICH IT IS EMPLOYED TOGETEHR WITH THE ARCHITECTURES}. We actively encourage contributors to the code base and make it easy to get started with a fully automated installer and updater that prepares all third party software and reference genomes.
+
+## Methods
+
+Pointers to codebase. Unit tests. Wrapping multiple tools, outline the pipelines used here. Point to supplementary config files used for validation below. Point to source for benchmarking files, versions. 
 
 * Alignment: bwa [@li_fast_2010], bwa-mem [@li_aligning_2013] and novoalign [@novoalign]
 * BAM alignment processing: samtools [@li_sequence_2009], samtools [@bamtools], Picard [@picard], sambamba [@sambamba] and pysam [@pysam]
 * Interval manipulation: BedTools [@quinlan_bedtools:_2010] and  pybedtools [@dale_pybedtools:_2011]
 * Variant calling: GATK [@depristo_framework_2011] and FreeBayes [@garrison_haplotype-based_2012]
 
-The pipeline reports variant calling results both in standard VCF format and as a ready to query database, making results analyzable by both bioinformaticians and biologists familiar with SQL and command line tools. snpEff [@cingolani_program_2012] predicts effects associated with identified variation and GEMINI provides the SQLite database associating variants with a wide variety of genome annotations [@paila_gemini:_2013].
-
-Three major components of bcbio-nextgen differentiate it from both existing tools like HugeSeq [@lam_detecting_2012] and customized in-house scripts:
-
-* Quantifiable: It validates variant calls against known reference materials developed by the Genome in a Bottle consortium [@zook_integrating_2013]. Automating scoring and assessment of calls allows identification of improvements or regressions in variant identification as calling pipelines evolve. Incorporation of multiple variant calling approaches from Broad’s GATK best practices [@van_der_auwera_fastq_2002] and the Marth lab’s FreeBayes caller [@garrison_haplotype-based_2012] enables informed comparisons between algorithms.
-* Scalable: bcbio-nextgen handles large population studies with hundreds of whole genome samples by parallelizing on a wide variety of schedulers (LSF, SGE, Torque, SLURM) and multicore machines.
-* Community developed: Due to the focus on solving the problems of setting up and maintaining a complex analysis pipeline, multiple sequencing centers and research laboratories use bcbio-nextgen {SUCH AS AND REFER TO A TABLE OF THE SITES AT WHICH IT IS EMPLOYED TOGETEHR WITH THE ARCHITECTURES}. We actively encourage contributors to the code base and make it easy to get started with a fully automated installer and updater that prepares all third party software and reference genomes.
-
-## Validation
+## Results
 
 Alignment and variant calling algorithms are both diverse and rapidly
 changing. Tools quickly become outdated and new approaches provide
@@ -43,7 +44,11 @@ ensuring that variant calling accuracy improves with new changes, and
 for evaluating new methodologies against established best practice.
 
 bcbio-nextgen includes an automated approach to validate calling methods
-against known reference materials. A high quality NA12878 reference
+against known reference materials.
+
+### Germline validation
+
+ A high quality NA12878 reference
 genome developed by the Genome in a Bottle consortium
 [@zook_integrating_2013] provides a baseline dataset for comparison. The
 evaluation dataset is a NA12878 clinical exome contributed by EdgeBio.
@@ -93,6 +98,12 @@ to change with new releases and algorithms. The automated assessment
 mechanism allows bcbio-nextgen to track and adapt to continuously
 improving tools.
 
+### Cancer validation
+
+
+### Structural variant detection
+
+
 ## Scaling
 
 The second differentiating feature of bcbio-nextgen is the ability to scale to handle large population whole genome datasets on a wide variety of architectures. The pipeline runs in parallel on single multicore machines or on clusters with a shared filesystem and scheduler. It utilizes the general purpose IPython parallel infrastructure [@IPython], which supports multiple schedulers including LSF, SGE, SLURM, and Torque. This infrastructure allows jobs to adapt to increased scale or system changes without adjusting the underlying configuration or code.
@@ -106,7 +117,6 @@ To utilize large cluster architectures, bcbio-nextgen parallelizes processing at
 
 ![image](figures/parallel-genome.png)
 **Figure 03** Identification of shared no coverage regions between multiple samples. Each no coverage region breaks the genome into chunks allowing parallel processing.
-
 
 Within each independently running parallel process, bcbio-nextgen controls memory usage and disk IO to maximize the throughput of multiple simultaneous processes. An input configuration files specifies available memory usage for programs that allow memory restrictions, and expected memory usage for those that do not. These inputs allow for an accurate estimate of memory consumption and bcbio-nextgen avoids overscheduling jobs relative to available memory on each machine. Similarly, simultaneous disk IO on shared filesystems is a common bottleneck during processing. bcbio-nextgen minimizes this by use of streaming piped processing steps where supported by the underlying tools. As an example, the alignment steps converts output into standard sorted BAM files via use of unix pipes, avoiding writing intermediates to disk.
 
@@ -135,9 +145,18 @@ A final unique aspect of the pipeline is a strong focus on community development
 To achieve wide usability, bcbio-nextgen installs on multiple unix-based operating systems and cluster types. An automated installer built on CloudBioLinux [@krampis_cloud_2012] installs both the bcbio-nextgen Python framework as well as all associated tools and pre-indexed genomic data. Installation is fully documented (<https://bcbio-nextgen.readthedocs.org/en/latest/contents/installation.html>) and uses the same automated process to provide updates for new versions of the pipeline and tools. It includes a full test suite as well as example exome and genome datasets for ensuring correct installation and scaling (<https://bcbio-nextgen.readthedocs.org/en/latest/contents/testing.html>).
 
 
+### Discussion
+
+Move explanatory text from results section over here. 
+
+By removing installation and infrastructure integration hurdles, bcbio-nextgen has an active user community with regular contributions from outside our core group. 
+
+In summary, bcbio-nextgen provides an automated pipeline to identify and validate genomic variations in high throughput sequencing data. The pipeline scales to handle large population studies by minimizing computational bottlenecks and integrating with multiple cluster architectures. The pipeline is open-source, documented and we welcome community contributions.
+
+
 ## Future work 
 
-By removing installation and infrastructure integration hurdles, bcbio-nextgen has an active user community with regular contributions from outside our core group. We continue to actively develop the framework to increase the scope and currently active projects include:
+We continue to actively develop the framework to increase the scope and currently active projects include:
 
 * Coverage – Assessment of coverage in gene regions of interest, allowing identification of regions without effective coverage for calling.
 * Structural variation – Detection of large scale events (duplications, deletions and inversions) as well as identification of copy number variations.
@@ -147,8 +166,6 @@ By removing installation and infrastructure integration hurdles, bcbio-nextgen h
 * Reproducibility and provenance – Provide versioned, locally isolated Linux containers using Docker to improve the ability to trace and re-run analyses.
 * Accessibility – Interface with web-based biologist targeted front ends such as Galaxy (@goecks_galaxy:_2010; @giardine_galaxy:_2005; @blankenberg_galaxy:_2010).
 
-
-In summary, bcbio-nextgen provides an automated pipeline to identify and validate genomic variations in high throughput sequencing data. The pipeline scales to handle large population studies by minimizing computational bottlenecks and integrating with multiple cluster architectures. The pipeline is open-source, documented and we welcome community contributions.
 
 ## Acknowledgments
 
