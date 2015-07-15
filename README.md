@@ -1,6 +1,5 @@
 Early draft paper describing [bcbio-nextgen](https://bcbio-nextgen.readthedocs.org/en/latest/index.html), a python toolkit providing best-practice pipelines for fully automated high throughput sequencing analysis.
 
-
 ## ToDo
 
 1. Go over blog posts (below) and identify relevant figures to include [DOING]
@@ -43,8 +42,6 @@ We can then point to other frameworks (Meta-SV and Co) for better SV call integr
 ## Still to organize
 
 1. Run IT benchmarks locally and AWS for 10 WGS (NA12878 copies), use collectl information for graphs and co (see http://bcb.io/2014/12/19/awsbench/)
-3. Run validation for cancer data vs ICGC/TCGA challenge with ~3 different callers (or the current SNP/InDel comparison) (see http://bcb.io/2015/03/05/cancerval/)
-4. Run validation for 2-3 SV callers (see http://bcb.io/2014/08/12/validated-whole-genome-structural-variation-detection-using-multiple-callers/)
 
 ## Data Sets and Metrics to distribute
 
@@ -58,12 +55,14 @@ We can then point to other frameworks (Meta-SV and Co) for better SV call integr
 
 ## Figures / Tables
 
+* High-level bcbio workflow outline
 * Germline FB/HaplotypeCaller/Samtools concordant/discordant SNPs/InDels to introduce concept. 
 * Germline calls with FB/HaplotypeCaller with and without recalibration/re-alignment
 * Germline calls with different filters applied (re ‘best practices’), FB/HaplotypeCaller with/without LCR, high depth filter (with the depth/ratio plots as supplemental figure)
 * Cancer variant caller comparison (SNPs and Indels)
 * FreeBayes optimization figure
-
+* SV call comparison in germline or cancer
+* Performance metrics local vs AWS as graph and summary table
 
 ## Open questions
 
