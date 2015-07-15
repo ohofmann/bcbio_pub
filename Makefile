@@ -23,7 +23,7 @@ SRC = $(wildcard *.$(MEXT))
 PREFIX = /Users/oho/.pandoc
 
 ## Location of your working bibliography file
-BIB = /Users/oho/.pandoc/refs.bib
+BIB = bcbio_pub.bib
 
 ## CSL stylesheet (located in the csl folder of the PREFIX directory).
 CSL = ajps
