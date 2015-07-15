@@ -21,15 +21,23 @@ Early draft paper describing [bcbio-nextgen](https://bcbio-nextgen.readthedocs.o
 
 The joint calling story is optional and I’d limit it to the “NA12878 with/without a subset of 1000G with the same ethnicity” example; the blog post is tricky to wrap your head around unless we dedicate a significant portion of the text to it. 
 
-
-
 ### Somatic
 
-TBA
+This one’s relatively straightforward as there’s only one comparison so far (see <http://bcb.io/2015/03/05/cancerval/>). Introduce the [ICGC-TCGA DREAM data](http://bcb.io/2015/03/05/cancerval/) and show two things:
+
+**Cancer variant caller comparison:** Just as important to compare differences in callers (if not more so, far from a set of ‘standard’ callers in this domain). Repeat Brad’s analysis just to make sure we have the config files and data all in one place for distribution. 
+
+**Tweaking tools:** Highlight how the benchmark sets are not only important to test new tools but to optimize existing ones. FreeBayes with default and Speedseq-optimized parameters. 
+
+Don’t think I’d include the cancer-only story as it would need more work (comparison of filters, manual curation) though I really like the detection of a false variant call. Up for discussion. 
 
 ### SV
 
-TBA
+Benchmark sets not limited to SNPs/InDels, also need to include larger events. See <http://bcb.io/2014/08/12/validated-whole-genome-structural-variation-detection-using-multiple-callers/>.
+
+**Ensemble SV approaches:** A repeat of the previous concept. Old run was with Lumpy, Delly, cn.mops. We’d probably switch to Lumpy, cnvkit, Wham for this (or keep Delly though it takes a while to run). Stratifiy by size of event. We could alterntively focus on the [cancer SVs](http://bcb.io/2015/03/05/cancerval/) to tie in with the previous section; I’d decide this based on what reference data set we trust more.
+
+We can then point to other frameworks (Meta-SV and Co) for better SV call integration. Highlight how this can and should feed back into the SNV/InDel call reports, flagging regions overlapping SV events for manual validation. Same for coverage. 
 
 
 ## Still to organize
@@ -53,6 +61,8 @@ TBA
 * Germline FB/HaplotypeCaller/Samtools concordant/discordant SNPs/InDels to introduce concept. 
 * Germline calls with FB/HaplotypeCaller with and without recalibration/re-alignment
 * Germline calls with different filters applied (re ‘best practices’), FB/HaplotypeCaller with/without LCR, high depth filter (with the depth/ratio plots as supplemental figure)
+* Cancer variant caller comparison (SNPs and Indels)
+* FreeBayes optimization figure
 
 
 ## Open questions
