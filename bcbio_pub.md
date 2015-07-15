@@ -21,7 +21,7 @@ The pipeline utilizes existing algorithms, wrapping them in an easy to use and s
 Three major components of bcbio-nextgen differentiate it from both existing tools like HugeSeq [@lam_detecting_2012] and customized in-house scripts:
 
 * Quantifiable: It validates variant calls against known reference materials developed by the Genome in a Bottle consortium [@zook_integrating_2013]. Automating scoring and assessment of calls allows identification of improvements or regressions in variant identification as calling pipelines evolve. Incorporation of multiple variant calling approaches from Broad’s GATK best practices [@van_der_auwera_fastq_2002] and the Marth lab’s FreeBayes caller [@garrison_haplotype-based_2012] enables informed comparisons between algorithms.
-* Scalable: bcbio-nextgen handles large population studies with hundreds of whole genome samples by parallelizing on a wide variety of schedulers (LSF, SGE, Torque, SLURM) and multicore machines. Runs local, AWS. Benchmarking support to optimize workflows. 
+* Scalable: bcbio-nextgen handles large population studies with hundreds of whole genome samples by parallelizing on a wide variety of schedulers (LSF, SGE, Torque, SLURM) and multicore machines. Runs local, AWS. Benchmarking support to optimize workflows. Stress WGS support, validation above WGS centric
 * Community developed: Due to the focus on solving the problems of setting up and maintaining a complex analysis pipeline, multiple sequencing centers and research laboratories use bcbio-nextgen {SUCH AS AND REFER TO A TABLE OF THE SITES AT WHICH IT IS EMPLOYED TOGETEHR WITH THE ARCHITECTURES}. We actively encourage contributors to the code base and make it easy to get started with a fully automated installer and updater that prepares all third party software and reference genomes.
 
 ## Methods
@@ -149,6 +149,9 @@ To achieve wide usability, bcbio-nextgen installs on multiple unix-based operati
 
 Move explanatory text from results section over here. 
 
+Reference other comparative efforts, GCAT
+Highlight need for more benchmark data, particularly for cancer, SV
+
 By removing installation and infrastructure integration hurdles, bcbio-nextgen has an active user community with regular contributions from outside our core group. 
 
 In summary, bcbio-nextgen provides an automated pipeline to identify and validate genomic variations in high throughput sequencing data. The pipeline scales to handle large population studies by minimizing computational bottlenecks and integrating with multiple cluster architectures. The pipeline is open-source, documented and we welcome community contributions.
@@ -196,8 +199,18 @@ def _args_valid_for_scheduler(args):
     return args.scheduler and args.queue
 ```
 
+### On validation
+
+A difficult aspect of evaluating variant calling methods is establishing a reference set of calls. For X Prize we use three established methods, each of which comes with tradeoffs. Metrics like transition/transversion ratios or dbSNP overlap provide a global picture of calling but are not fine grained enough to distinguish improvements over best practices. Sanger validation restricts you to a manageable subset of calls. Comparisons against public resources like 1000 genomes bias results towards technologies and callers used in preparing those variant callsets.
+
+### On scalability
+
+One key result I took from the paper was the difference in assessment between exome and whole genome callsets. Coverage differences due to capture characterize discordant exome variants, while complex genome regions drive whole genome discordants. Reading this paper pushed us to evaluate whole genome population based variant calling, which is now feasible due to improvements in bcbio-nextgen scalability.
 
 
+## On coverage
+
+Low coverage regions are the key area of difference between callers. Coupled with the alignment results and investigation of variant changes resulting from quality score binning, this suggests we should be more critical in assessing both calls and coverage in these regions. Assessing coverage and potential false negatives is especially critical since we lack good tools to summarize and prioritize genomic regions that are potentially missed during sequencing. This also emphasizes the role of population-based calling to help resolve low coverage regions, since callers can use evidence from multiple samples to better estimate the likelihoods of low coverage calls.
 
 
 
