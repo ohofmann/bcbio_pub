@@ -2,13 +2,14 @@ Early draft paper describing [bcbio-nextgen](https://bcbio-nextgen.readthedocs.o
 
 ## ToDo
 
-1. Go over blog posts (below) and identify relevant figures to include [DOING]
+1. Go over blog posts (below) and identify relevant figures to include [DONE]
+1. Pull architecture information out of <http://bcb.io/2014/03/06/improving-reproducibility-and-installation-of-genomic-analysis-pipelines-with-docker/> and <http://bcb.io/2013/05/22/scaling-variant-detection-pipelines-for-whole-genome-sequencing-analysis/>. [DOING]
 1. Organize all test data into a single spot (along with documentation, version information, etc.)
-2. Clarify differences between LCR (used in some of the blog posts) and GiaB callable regions filter
+1. Clarify differences between LCR (used in some of the blog posts) and GiaB callable regions filter
 1. Re-run benchmarks. This is basically unifying the various blog posts from Brad's site with the same bcbio version, input data and validation data as part of the paper. Make sure we agree on the default metrics to set as we make our way through the benchmarks -- e.g., to be able to show the impact of the LCR and high depth regions those filters need to be disabled by default (or we can show best practices throughout and show their impact by disabling them). 
 1.  Visualize differences sticking to concordant / missing / extra / shared|mixed variant description. Ideally provide IPython/RMarkdown scripts for the downstream comparison. I don't think we need timing information for the validation steps, just for the IT benchmark. Code to get started at <https://github.com/chapmanb/bcbb/tree/master/validation>.
-2. Move original text from blog posts to main document
-2. Pull architecture information out of http://bcb.io/2014/03/06/improving-reproducibility-and-installation-of-genomic-analysis-pipelines-with-docker/ and http://bcb.io/2013/05/22/scaling-variant-detection-pipelines-for-whole-genome-sequencing-analysis/
+1. Move original text from blog posts to main document.
+
 
 ## Benchmarks to Run
 
@@ -38,10 +39,12 @@ Benchmark sets not limited to SNPs/InDels, also need to include larger events. S
 
 We can then point to other frameworks (Meta-SV and Co) for better SV call integration. Highlight how this can and should feed back into the SNV/InDel call reports, flagging regions overlapping SV events for manual validation. Same for coverage. 
 
+## Scaling
 
-## Still to organize
+> Moving from exome to whole genome sequencing introduces a myriad of scaling and informatics challenges. In addition to the biological component of correctly identifying biological variation, it’s equally important to be able to handle the informatics complexities that come with scaling up to whole genomes.
 
-1. Run IT benchmarks locally and AWS for 10 WGS (NA12878 copies), use collectl information for graphs and co (see http://bcb.io/2014/12/19/awsbench/)
+That’s the theme for this section. Outline how bcbio handles this (parallelization, minimize I/O, pulling in information from <http://bcb.io/2013/05/22/scaling-variant-detection-pipelines-for-whole-genome-sequencing-analysis/>), including how we can monitor/benchmark different workflows and tools. Re-run resource benchmarks locally and on AWS for 10 WGS (NA12878 copies), use collectl information for graphs and Co (see <http://bcb.io/2014/12/19/awsbench/>). Ideally for whatever workflow we decided to be optimal above (germline, FreeBayes, minimal prep, same filters). 
+
 
 ## Data Sets and Metrics to distribute
 
@@ -55,17 +58,22 @@ We can then point to other frameworks (Meta-SV and Co) for better SV call integr
 
 ## Figures / Tables
 
-* High-level bcbio workflow outline
+* High-level bcbio workflow outline (see <http://bcb.io/2013/05/22/scaling-variant-detection-pipelines-for-whole-genome-sequencing-analysis/>)
 * Germline FB/HaplotypeCaller/Samtools concordant/discordant SNPs/InDels to introduce concept. 
 * Germline calls with FB/HaplotypeCaller with and without recalibration/re-alignment
 * Germline calls with different filters applied (re ‘best practices’), FB/HaplotypeCaller with/without LCR, high depth filter (with the depth/ratio plots as supplemental figure)
 * Cancer variant caller comparison (SNPs and Indels)
 * FreeBayes optimization figure
 * SV call comparison in germline or cancer
+* bcbio parallelism approach, heterogenous cluster creation
 * Performance metrics local vs AWS as graph and summary table
 
 ## Open questions
 
 * Do we want to include the FASTQ binning analysis, <http://bcb.io/2013/02/13/the-influence-of-reduced-resolution-quality-scores-on-alignment-and-variant-calling/>?
 * Do we use the VQSR (and VQSR-equivalent for FreeBayes) in the general WGS workflow analysis? If so this needs to go into the methods section with the comparison figure in the supplements
+* Do we touch upon the bcbio-vm and Docker part at all? Information can be pulled from <http://bcb.io/2014/03/06/improving-reproducibility-and-installation-of-genomic-analysis-pipelines-with-docker/> and <http://bcb.io/2014/12/19/awsbench/> but it’s tricky to integrate with the rest of the paper (other than the AWS benchmarking). 
+* RNA-Seq yay or nay?
+* For scaling approach do we show a 1WGS example with 16 vs 160 cores? I.e., what is the improvement going from 1 to 10 nodes? Do we show the NFS/Lustre story at all or keep it simple to raw numbers?
+
 
