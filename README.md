@@ -16,17 +16,20 @@ Early draft paper describing [bcbio-nextgen](https://bcbio-nextgen.readthedocs.o
 
 ### Germline
 
-**Ensemble calling:** Don’t think we want to re-introduce the SVM ensemble calling approach. Would be good to limit to `bwa-mem` with `FreeBayes`, `GATK HaplotypeCaller` and maybe `samtools` as a third option, show benefits of Ensemble call as currently implemented (found in 2 out of 3 callers that are independent). Just as a proof of principle. See <http://bcb.io/2013/02/06/an-automated-ensemble-method-for-combining-and-evaluating-genomic-variants-from-multiple-callers/>. Worth keeping an eye on the time spent calling variants with each tool so we can discuss time vs result differences.
+Use the [NA12877, NA12878, and NA12882 trio at 50x WGS](http://www.ebi.ac.uk/ena/data/view/ERP001960) for all validation steps, with NA12878 SNPs and InDels validated against GiaB. Batch calling is sufficient for this. 
 
-**On ‘best practices’:** Lots of talking about what best practice means, but it’s actually not really defined (other than ‘what everyone else does’). We could add some contentious topics such as the need for re-alignment/re-calibration (see <http://bcb.io/2013/10/21/updated-comparison-of-variant-detection-methods-ensemble-freebayes-and-minimal-bam-preparation-pipelines/>), better filtering (see <http://bcb.io/2014/05/12/wgs-trio-variant-evaluation/>) and the impact of joint calling (see <http://bcb.io/2014/10/07/joint-calling/>), e.g., on a single NA12878 run with and without a reference 1000G panel / subset. Highlight differences (license free pipeline). 
+**Ensemble calling:** Would be good to limit to `bwa-mem` with `FreeBayes`, `GATK HaplotypeCaller` and `samtools` as a third option, show benefits of Ensemble call as currently implemented (found in 2 out of 3 callers that are independent) as a proof of principle. See <http://bcb.io/2013/02/06/an-automated-ensemble-method-for-combining-and-evaluating-genomic-variants-from-multiple-callers/>. Worth keeping an eye on the time spent calling variants with each tool so we can discuss time vs benefits story. 
 
-The joint calling story is optional and I’d limit it to the “NA12878 with/without a subset of 1000G with the same ethnicity” example; the blog post is tricky to wrap your head around unless we dedicate a significant portion of the text to it. 
+**On ‘best practices’:** Lots of talking about what best practice means, but it’s actually not really defined (other than ‘what everyone else does’). Add a frequently discussed topic such as the need for re-alignment/re-calibration (see <http://bcb.io/2013/10/21/updated-comparison-of-variant-detection-methods-ensemble-freebayes-and-minimal-bam-preparation-pipelines/>) to show value in being able to actually test different ‘best practice’ suggestions.
+
+I would keep better filtering (see <http://bcb.io/2014/05/12/wgs-trio-variant-evaluation/>) and the impact of joint calling (see <http://bcb.io/2014/10/07/joint-calling/>), e.g., on a single NA12878 run with and without a reference 1000G panel / subset out of this paper or limit it to supplements if necessary. Check that VQSR is enabled for the GATK-caller validation and that we have similar filters in place for FreeBayes and samtools.
+
 
 ### Somatic
 
 This one’s relatively straightforward as there’s only one comparison so far (see <http://bcb.io/2015/03/05/cancerval/>). Introduce the [ICGC-TCGA DREAM data](http://bcb.io/2015/03/05/cancerval/) and show two things:
 
-**Cancer variant caller comparison:** Just as important to compare differences in callers (if not more so, far from a set of ‘standard’ callers in this domain). Repeat Brad’s analysis just to make sure we have the config files and data all in one place for distribution. 
+**Cancer variant caller comparison:** Just as important to compare differences in callers (if not more so, far from a set of ‘standard’ callers in this domain). Repeat Brad’s analysis just to make sure we have the config files and data all in one place for distribution. Lineup of callers is MuTect/Scalpel, FeeBayes, VarScan and VarDict. We can skip the ensemble call here. 
 
 **Tweaking tools:** Highlight how the benchmark sets are not only important to test new tools but to optimize existing ones. FreeBayes with default and Speedseq-optimized parameters. 
 
@@ -34,26 +37,37 @@ Don’t think I’d include the cancer-only story as it would need more work (co
 
 ### SV
 
-Benchmark sets not limited to SNPs/InDels, also need to include larger events. See <http://bcb.io/2014/08/12/validated-whole-genome-structural-variation-detection-using-multiple-callers/>.
+Benchmark sets not limited to SNPs/InDels, also need to include larger events. See <http://bcb.io/2014/08/12/validated-whole-genome-structural-variation-detection-using-multiple-callers/>. We can use the recent [GiaB SV test data set](https://sites.stanford.edu/abms/content/giab-reference-materials-and-data) for this; still need to go through the [svclassify paper](http://biorxiv.org/content/early/2015/05/16/019372).
 
-**Ensemble SV approaches:** A repeat of the previous concept. Old run was with Lumpy, Delly, cn.mops. We’d probably switch to Lumpy, cnvkit, Wham for this (or keep Delly though it takes a while to run). Stratifiy by size of event. We could alterntively focus on the [cancer SVs](http://bcb.io/2015/03/05/cancerval/) to tie in with the previous section; I’d decide this based on what reference data set we trust more.
-
-We can then point to other frameworks (Meta-SV and Co) for better SV call integration. Highlight how this can and should feed back into the SNV/InDel call reports, flagging regions overlapping SV events for manual validation. Same for coverage. 
+**Ensemble SV approaches:** A repeat of the previous concept. Old run was with Lumpy, Delly, cn.mops; for this we’d switch to Lumpy, Wham and Manta. Stratifiy by size of event. We can then point to other frameworks (Meta-SV and Co) for better SV call integration. Highlight how this can and should feed back into the SNV/InDel call reports, flagging regions overlapping SV events for manual validation. Same for coverage. 
 
 ## Scaling
 
 > Moving from exome to whole genome sequencing introduces a myriad of scaling and informatics challenges. In addition to the biological component of correctly identifying biological variation, it’s equally important to be able to handle the informatics complexities that come with scaling up to whole genomes.
 
-That’s the theme for this section. Outline how bcbio handles this (parallelization, minimize I/O, pulling in information from <http://bcb.io/2013/05/22/scaling-variant-detection-pipelines-for-whole-genome-sequencing-analysis/>), including how we can monitor/benchmark different workflows and tools. Re-run resource benchmarks locally and on AWS for 10 WGS (NA12878 copies), use collectl information for graphs and Co (see <http://bcb.io/2014/12/19/awsbench/>). Ideally for whatever workflow we decided to be optimal above (germline, FreeBayes, minimal prep, same filters). 
+That’s the theme for this section. Outline how bcbio handles this (parallelization, minimize I/O, pulling in information from <http://bcb.io/2013/05/22/scaling-variant-detection-pipelines-for-whole-genome-sequencing-analysis/>), including how we can monitor/benchmark different workflows and tools. Re-run resource benchmarks locally and on AWS for 10 WGS (NA12878 copies), use collectl information for graphs and Co (see <http://bcb.io/2014/12/19/awsbench/>). Ideally for whatever workflow we decided to be optimal above (germline, FreeBayes, minimal prep, same filters). Lorena has already run this both locally and on AWS, if possible we should re-use those collectl files. If we need to re-generate them I’d love to re-use her code/scripts at least.
 
 
 ## Data Sets and Metrics to distribute
 
 * [ ] The [Coriell NA12878 sample information](https://catalog.coriell.org/0/Sections/Search/Sample_Detail.aspx?Ref=GM12878)
-* [ ] Reads from the [Platinum Genome](http://www.illumina.com/platinumgenomes/) for [NA12878](http://www.ebi.ac.uk/ena/data/view/SAMEA1573618), 50x WGS
-* [ ] Data from the [ICGC-TCGA DREAM Mutation Challenge](https://www.synapse.org/#!Synapse:syn312572), right now limited to the [5 simulated-sequencing tumors](https://www.synapse.org/#!Synapse:syn312572/wiki/62018). I would stick to the easy 100% cellularity sample, but not entirely sure which samples [to download](https://cghub.ucsc.edu/datasets/benchmark_download.html). I also could not find the SV regions that got introduced into the sample and which should be discounted during benchmarking 
+* [ ] Reads from the [Platinum Genome](http://www.illumina.com/platinumgenomes/) for the 50x WGS trio of [NA12877](http://www.ebi.ac.uk/ena/data/view/SAMEA1573614), [NA12878](http://www.ebi.ac.uk/ena/data/view/SAMEA1573618) and [NA12882](http://www.ebi.ac.uk/ena/data/view/SAMEA1573621)
+* [ ] Data from the [ICGC-TCGA DREAM Mutation Challenge](https://www.synapse.org/#!Synapse:syn312572), right now limited to the [5 simulated-sequencing tumors](https://www.synapse.org/#!Synapse:syn312572/wiki/62018). Decision was to go for the `in silico 3` data set (100% cellularity, with clonality of 50%, 33%, 20%). Still need to grab the data, code for this is:
+
+```Shell
+wget --no-check-certificate https://cghub.ucsc.edu/software/downloads/GeneTorrent/3.8.5a/GeneTorrent-download-3.8.5a-94-CentOS5.8.x86_64.tar.gz
+tar -xzvpf GeneTorrent-download-3.8.5a-94-CentOS5.8.x86_64.tar.gz
+cghub/bin/gtdownload -v -c http://dream.annailabs.com/dream_public.pem -d https://dream.annailabs.com/cghub/data/analysis/download/b19d76a0-a487-4c50-8f9c-3b4d5e53239d
+ln -s b19d76a0-a487-4c50-8f9c-3b4d5e53239d/*.bam
+ln -s b19d76a0-a487-4c50-8f9c-3b4d5e53239d/*.bam.bai
+cghub/bin/gtdownload -v -c http://dream.annailabs.com/dream_public.pem -d https://dream.annailabs.com/cghub/data/analysis/download/8fe6fc33-2daf-4393-929f-7c3493d04bef
+ln -s 8fe6fc33-2daf-4393-929f-7c3493d04bef/*.bam
+ln -s 8fe6fc33-2daf-4393-929f-7c3493d04bef/*.bam.bai
+```
+
+I could not find the SV regions that got introduced into the sample and which should be discounted during benchmarking so we might just count all regions (frankly we should -- they’ll be present in actual tumor samples, too).  
 * [ ] Recent [GiaB reference materials](https://sites.stanford.edu/abms/content/giab-reference-materials-and-data), in particular the [integrated calls](ftp://ftp-trace.ncbi.nih.gov/giab/ftp/release/NA12878_HG001/NISTv2.19/) (v2.19) along with the [definition of callable regions](ftp://ftp-trace.ncbi.nih.gov/giab/ftp/release/NA12878_HG001/NISTv2.19/) (ftp://ftp-trace.ncbi.nih.gov/giab/ftp/release/NA12878_HG001/NISTv2.19/). See the [README](ftp://ftp-trace.ncbi.nih.gov/giab/ftp/release/NA12878_HG001/NISTv2.19/README.NIST.v2.19.txt) (ftp://ftp-trace.ncbi.nih.gov/giab/ftp/release/NA12878_HG001/NISTv2.19/README.NIST.v2.19.txt) for details
-* [ ] For SV calling we’ll have to distribute our own and include detailed information [how it was derived](http://bcb.io/2014/08/12/validated-whole-genome-structural-variation-detection-using-multiple-callers/). The SV calling uses information from the [Platinum Genomes Trio](http://www.ebi.ac.uk/ena/data/view/ERP001960) so we’ll need all samples. Brad’s [shell script](https://raw.github.com/chapmanb/bcbio-nextgen/master/config/examples/NA12878-trio-sv-getdata.sh) has the locations, but we’ll need to point to the raw validation data and scripts used to generate those
+* [ ] For SV calling we’ll have to distribute our own and include detailed information [how it was derived](http://bcb.io/2014/08/12/validated-whole-genome-structural-variation-detection-using-multiple-callers/); alternatively we can use the GiaB PacBio calls only or look for access into Bina’s MetaSV test data which _seems_ to be based on the [sv-classify work](http://biorxiv.org/content/early/2015/05/16/019372)
 * [ ] BED file of [low complexity regions](https://github.com/lh3/varcmp/raw/master/scripts/LCR-hs37d5.bed.gz) generated by Heng Li in <http://bioinformatics.oxfordjournals.org/content/early/2014/07/03/bioinformatics.btu356>
 * [ ] All config files
 * [ ] All VCFs
