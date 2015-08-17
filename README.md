@@ -110,6 +110,7 @@ The data is available as two BED files for insertions (ftp://ftp-trace.ncbi.nih.
 ```
 $ brew install pandoc pandoc-citeproc
 $ brew cask install mactex
+$ git clone https://github.com/kjhealy/pandoc-templates ~/.pandoc
 $ sudo cp -a sty/* /usr/local/texlive/texmf-local/tex/latex/local/ && texhash
 $ bin/minionpro.sh
 $ make
