@@ -105,4 +105,12 @@ The data is available as two BED files for insertions (ftp://ftp-trace.ncbi.nih.
 * RNA-Seq yay or nay?
 * For scaling approach do we show a 1WGS example with 16 vs 160 cores? I.e., what is the improvement going from 1 to 10 nodes? Do we show the NFS/Lustre story at all or keep it simple to raw numbers?
 
+## Compiling this paper:
 
+```
+$ brew install pandoc pandoc-citeproc
+$ brew cask install mactex
+$ sudo cp -a sty/* /usr/local/texlive/texmf-local/tex/latex/local/ && texhash
+$ bin/minionpro.sh
+$ make
+```
