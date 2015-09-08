@@ -4,25 +4,31 @@ Early draft paper describing [bcbio-nextgen](https://bcbio-nextgen.readthedocs.o
 
 1. [x] Go over blog posts (below) and identify relevant figures to include 
 1. [x] Pull architecture information out of <http://bcb.io/2014/03/06/improving-reproducibility-and-installation-of-genomic-analysis-pipelines-with-docker/> and <http://bcb.io/2013/05/22/scaling-variant-detection-pipelines-for-whole-genome-sequencing-analysis/>.
-1. [ ] Organize all test data into a single spot (along with documentation, version information, etc.) [DOING]
-1. [ ] Clarify differences between LCR (used in some of the blog posts) and GiaB callable regions filter
-1. [ ] Define/Agree on the default metrics to set as we make our way through the benchmarks -- e.g., to be able to show the impact of the LCR and high depth regions those filters need to be disabled by default (or we can show best practices throughout and show their impact by disabling them).
-1. [ ] Re-run benchmarks. This is basically unifying the various blog posts from Brad's site with the same bcbio version, input data and validation data as part of the paper.  
+1. [x] Clarify differences between LCR (used in some of the blog posts) and GiaB callable regions filter
+1. [ ] Organize all test data into a single spot (along with documentation, version information, bcbio config files, etc.) [DOING]
+1. [ ] Define/Agree on the default metrics to set as we make our way through the benchmarks -- e.g., to be able to show the impact of the LCR and high depth regions those filters need to be disabled by default (or we can show best practices throughout and show their impact by disabling them). Output is a set of bcbio `yaml` config files.
+1. [ ] Re-run benchmarks. This is basically unifying the various blog posts from Brad's site with the same bcbio version, input data and validation data as part of the paper. Store resulting csv files along with the primary data and `yaml` config files
 1.  [ ] Visualize differences sticking to concordant / missing / extra / shared|mixed variant description. Ideally provide IPython/RMarkdown scripts for the downstream comparison. I don't think we need timing information for the validation steps, just for the IT benchmark. Code to get started at <https://github.com/chapmanb/bcbb/tree/master/validation>.
 1. [ ] Move original text from blog posts to main document.
 
 
 ## Benchmarks to Run
 
+
+
 ### Germline
 
 Use the [NA12877, NA12878, and NA12882 trio at 50x WGS](http://www.ebi.ac.uk/ena/data/view/ERP001960) for all validation steps, with NA12878 SNPs and InDels validated against GiaB. Batch calling is sufficient for this. 
+
+For germline, the high coverage filter is the default for FreeBayes. We should also turn on `remove_lcr: true`. This is not the default since I don't think people would want those regions removed for real calls but it helps a ton for comparisons.
 
 **Ensemble calling:** Would be good to limit to `bwa-mem` with `FreeBayes`, `GATK HaplotypeCaller` and `samtools` as a third option, show benefits of Ensemble call as currently implemented (found in 2 out of 3 callers that are independent) as a proof of principle. See <http://bcb.io/2013/02/06/an-automated-ensemble-method-for-combining-and-evaluating-genomic-variants-from-multiple-callers/>. Worth keeping an eye on the time spent calling variants with each tool so we can discuss time vs benefits story. 
 
 **On ‘best practices’:** Lots of talking about what best practice means, but it’s actually not really defined (other than ‘what everyone else does’). Add a frequently discussed topic such as the need for re-alignment/re-calibration (see <http://bcb.io/2013/10/21/updated-comparison-of-variant-detection-methods-ensemble-freebayes-and-minimal-bam-preparation-pipelines/>) to show value in being able to actually test different ‘best practice’ suggestions.
 
-I would keep better filtering (see <http://bcb.io/2014/05/12/wgs-trio-variant-evaluation/>) and the impact of joint calling (see <http://bcb.io/2014/10/07/joint-calling/>), e.g., on a single NA12878 run with and without a reference 1000G panel / subset out of this paper or limit it to supplements if necessary. Check that VQSR is enabled for the GATK-caller validation and that we have similar filters in place for FreeBayes and samtools.
+I would keep better filtering (see <http://bcb.io/2014/05/12/wgs-trio-variant-evaluation/>) and the impact of joint calling (see <http://bcb.io/2014/10/07/joint-calling/>), e.g., on a single NA12878 run with and without a reference 1000G panel / subset out of this paper or limit it to supplements if necessary. 
+
+Check that VQSR is enabled for the GATK-caller validation and that we have similar filters in place for FreeBayes and samtools.
 
 
 ### Somatic
