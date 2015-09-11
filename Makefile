@@ -20,7 +20,7 @@ MEXT = md
 SRC = $(wildcard *.$(MEXT))
 
 ## Location of Pandoc support files.
-PREFIX = /Users/oho/.pandoc
+PREFIX = $(HOME)/.pandoc
 
 ## Location of your working bibliography file
 BIB = bcbio_pub.bib
